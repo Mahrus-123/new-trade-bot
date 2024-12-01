@@ -7,12 +7,16 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Cont
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Fetch the admin Telegram user ID and bot token from environment variables
-ADMIN_ID = int(os.getenv("ADMIN_ID", "5698476270"))  # Default admin ID
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # Fetch the bot token from environment variables
+# Load required environment variables
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # Fetch the bot token from the environment
+PORT = int(os.getenv("PORT", "8443"))  # Render sets the PORT environment variable
+HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")  # Render sets this for webhook configuration
 
 if not TOKEN:
-    raise ValueError("TELEGRAM_BOT_TOKEN environment variable is not set.")
+    raise ValueError("Telegram bot token is not set. Please ensure the TELEGRAM_BOT_TOKEN environment variable is configured.")
+
+# Define the admin Telegram user ID
+ADMIN_ID = int(os.getenv("ADMIN_ID", "5698476270"))  # Replace with your ID or set via environment
 
 # Define the main menu keyboard
 def main_menu_keyboard():
@@ -39,20 +43,7 @@ def main_menu_keyboard():
         ],
     ])
 
-# Admin Page Keyboard with additional options
-def admin_page_keyboard():
-    return InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton("User Stats", callback_data="user_stats"),
-            InlineKeyboardButton("Bot Activity Logs", callback_data="bot_logs"),
-        ],
-        [
-            InlineKeyboardButton("Database Status", callback_data="db_status"),
-            InlineKeyboardButton("Back to Main Menu", callback_data="back_to_main"),
-        ],
-    ])
-
-# Function to handle the /start command
+# Define the /start command handler
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     welcome_message = (
         f"Welcome to Trojan on Solana, {update.message.from_user.first_name}!\n\n"
@@ -75,15 +66,11 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     if query.data == "admin_page":
         if user_id == ADMIN_ID:
             admin_message = "Welcome to the Admin Page. Manage bot settings and monitor activities here."
-            await query.edit_message_text(admin_message, reply_markup=admin_page_keyboard())
+            await query.edit_message_text(admin_message, reply_markup=main_menu_keyboard())
         else:
             logger.warning(f"Unauthorized admin page access attempt by user ID {user_id}.")
             await query.answer("You are not authorized to access this page!", show_alert=True)
             return
-
-    elif query.data == "back_to_main":
-        await query.edit_message_text("Returning to main menu...", reply_markup=main_menu_keyboard())
-
     elif query.data == "buy":
         await query.edit_message_text(
             "Buy $SLND- (Solend) 📈\n\nBalance: -_- SOL\nInsufficient balance for buy amount + gas.",
@@ -107,24 +94,20 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     else:
         await query.edit_message_text("Feature not implemented yet.", reply_markup=main_menu_keyboard())
 
-# Function to set up polling or webhook
+# Function to start the bot
 def run_bot():
-    PORT = int(os.getenv("PORT", 8443))  # Render automatically sets this port
-    HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")  # Render provides this for webhook configuration
-
-    # Set up the application
     application = Application.builder().token(TOKEN).build()
 
-    # Add handlers for commands and button clicks
+    # Add handlers
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CallbackQueryHandler(button_handler))
 
-    # Start the bot using webhook
+    # Run the bot using a webhook
     application.run_webhook(
-        listen="0.0.0.0",
-        port=PORT,
-        url_path=TOKEN,
-        webhook_url=f"https://{HOSTNAME}/{TOKEN}"
+        listen="0.0.0.0",  # Bind to all network interfaces
+        port=PORT,  # Use the port from Render
+        url_path=TOKEN,  # URL path for Telegram
+        webhook_url=f"https://{HOSTNAME}/{TOKEN}"  # Full webhook URL
     )
 
 # Entry point of the script
