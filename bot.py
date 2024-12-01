@@ -7,8 +7,12 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Cont
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Define the admin Telegram user ID
-ADMIN_ID = int(os.getenv("ADMIN_ID", "5698476270"))  # Replace with your Telegram user ID or set via Render
+# Fetch the admin Telegram user ID and bot token from environment variables
+ADMIN_ID = int(os.getenv("ADMIN_ID", "5698476270"))  # Default admin ID
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # Fetch the bot token from environment variables
+
+if not TOKEN:
+    raise ValueError("TELEGRAM_BOT_TOKEN environment variable is not set.")
 
 # Define the main menu keyboard
 def main_menu_keyboard():
@@ -105,7 +109,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 # Function to set up polling or webhook
 def run_bot():
-    TOKEN = os.getenv("7761108718:AAFmR_1ZtMAXX8DBi_r3BCo7418MtK6C1GU")  # Fetch the bot token from environment variables
     PORT = int(os.getenv("PORT", 8443))  # Render automatically sets this port
     HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")  # Render provides this for webhook configuration
 
