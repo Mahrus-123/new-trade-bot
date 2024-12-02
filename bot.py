@@ -78,43 +78,47 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         )
         await query.edit_message_text(message, parse_mode="Markdown", reply_markup=back_to_main_keyboard())
     elif query.data == "sell":
-        message = (
-            "🛒 *Sell Option*\n\n"
-            "Sell tokens from your wallet. Choose the token you wish to sell. "
-            "Ensure sufficient gas fees are available for the transaction."
-        )
+        message = "You do not have any tokens yet! Start trading in the Buy menu."
         await query.edit_message_text(message, parse_mode="Markdown", reply_markup=back_to_main_keyboard())
     elif query.data == "positions":
-        message = (
-            "📊 *Your Positions*\n\n"
-            "Track your active trading positions here. No active positions at the moment."
-        )
+        message = "You do not have any tokens yet! Start trading in the Buy menu."
         await query.edit_message_text(message, parse_mode="Markdown", reply_markup=back_to_main_keyboard())
     elif query.data == "limit_orders":
-        message = (
-            "📈 *Limit Orders*\n\n"
-            "Set limit orders to buy or sell tokens at specific prices. "
-            "This feature is under development."
-        )
+        message = "You have no limit orders. Create a limit order from the Buy and Sell menu."
         await query.edit_message_text(message, parse_mode="Markdown", reply_markup=back_to_main_keyboard())
     elif query.data == "referrals":
         message = (
-            "🎉 *Referrals*\n\n"
-            "Invite your friends to Trojan on Solana and earn rewards. "
-            "Share your referral link to start earning today!"
+            "💰 *Invite your friends to save 10% on fees.*\n\n"
+            "If you've traded more than $10k volume in a week, you'll receive a 35% share of the fees paid by your referees! "
+            "Otherwise, you'll receive a 25% share.\n\n"
+            "*Your Referrals (updated every 15 min):*\n"
+            "• Users referred: 0 (direct: 0, indirect: 0)\n"
+            "• Total rewards: 0 SOL ($0.00)\n"
+            "• Total paid: 0 SOL ($0.00)\n"
+            "• Total unpaid: 0 SOL ($0.00)\n\n"
+            "Rewards are paid daily and airdropped directly to your chosen Rewards Wallet. "
+            "You must have accrued at least 0.005 SOL in unpaid fees to be eligible for a payout.\n\n"
+            "We've established a tiered referral system, ensuring that as more individuals come onboard, rewards extend through "
+            "five different layers of users. This structure not only benefits community growth but also significantly increases "
+            "the percentage share of fees for everyone.\n\n"
+            "Your Referral Link:\n"
+            "[https://t.me/solana_trojanbot?start](https://t.me/solana_trojanbot?start)\n\n"
+            "Stay tuned for more details on how we'll reward active users and happy trading!"
         )
         await query.edit_message_text(message, parse_mode="Markdown", reply_markup=back_to_main_keyboard())
     elif query.data == "withdraw":
         message = (
             "💸 *Withdraw Funds*\n\n"
-            "Withdraw your funds to your external wallet. "
-            "Ensure your withdrawal amount exceeds the minimum limit."
+            "Select a token to withdraw (e.g., Solana):\n\n"
+            "• *SOL* — (0.00)\n\n"
+            "🔴 *Insufficient SOL balance.*\n\n"
+            "Ensure your withdrawal amount exceeds the minimum required balance before initiating a withdrawal."
         )
         await query.edit_message_text(message, parse_mode="Markdown", reply_markup=back_to_main_keyboard())
     elif query.data == "copy_trade":
         message = (
             "🔄 *Copy Trade*\n\n"
-            "Copy Trade allows you to copy the buys and sells of any target wallet. \n\n"
+            "Copy Trade allows you to copy the buys and sells of any target wallet.\n\n"
             "🟢 *Indicates* a copy trade setup is active.\n"
             "🟠 *Indicates* a copy trade setup is paused.\n\n"
             "You do not have any copy trades setup yet. Click on the *New* button to create one."
