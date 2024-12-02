@@ -1,4 +1,2 @@
-python-telegram-bot==20.0
-mysql-connector-python==8.0.30
-python-telegram-bot[webhooks]
-
+python-telegram-bot==20.1
+gunicorn==20.1.0
