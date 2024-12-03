@@ -1,6 +1,7 @@
 import logging
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputFile
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, Bot
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
+import os
 
 # Set up logging to monitor errors and debug information
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -8,6 +9,12 @@ logger = logging.getLogger(__name__)
 
 # Define the admin Telegram user ID
 ADMIN_ID = 5698476270  # Replace with your Telegram user ID
+
+# Function to clear existing webhook (important for resolving conflicts)
+def clear_webhook():
+    bot = Bot("7761108718:AAFmR_1ZtMAXX8DBi_r3BCo7418MtK6C1GU")
+    bot.delete_webhook(drop_pending_updates=True)
+    logger.info("Webhook cleared.")
 
 # Define the main menu keyboard
 def main_menu_keyboard():
@@ -49,6 +56,27 @@ def admin_page_keyboard():
 
 # Function to handle the /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    # Video path (use the correct path to your video)
+    video_path = "C:/Users/IYOHA ODUTOLA/Documents/new python bot/WhatsApp Video 2024-12-03 at 12.58.12 AM.mp4"
+    
+    try:
+        # Check if the video exists and send it
+        if os.path.exists(video_path):
+            with open(video_path, 'rb') as video_file:
+                await context.bot.send_video(
+                    chat_id=update.effective_chat.id,
+                    video=video_file,
+                    caption="Welcome to Trojan on Solana! 🎥"
+                )
+        else:
+            logger.error(f"Video file not found at {video_path}")
+            await update.message.reply_text("Error: Welcome video not available.")
+            return
+    except Exception as e:
+        logger.error(f"Error sending video: {e}")
+        await update.message.reply_text("Error: Could not send video.")
+    
+    # Send the welcome text
     welcome_message = (
         "Welcome to Trojan on Solana!\n\n"
         "Introducing a cutting-edge bot crafted exclusively for Solana Traders. "
@@ -67,28 +95,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "@achilles_trojanbot | @odysseus_trojanbot | @Menelaus_trojanbot | "
         "@Diomedes_trojanbot | @Paris_trojanbot | @Helenus_trojanbot | @Hector_trojanbot\n"
     )
-    
-    # Send the welcome message
     await update.message.reply_text(welcome_message, reply_markup=main_menu_keyboard())
-    
-    # Send a video
-    video_path = "your_video.mp4"  # Replace this with the actual path to your video
-    try:
-        with open(video_path, "rb") as video:
-            await context.bot.send_video(
-                chat_id=update.effective_chat.id,
-                video=InputFile(video),
-                caption="Here is your introductory video!",
-            )
-    except FileNotFoundError:
-        await update.message.reply_text("Error: The video file was not found. Please check the file path.")
 
 # Function to handle button presses
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
-    user_id = query.from_user.id
+    user_id = query.from_user.id  # Get the user ID to check admin rights
     await query.answer()
 
+    # Handle the main menu buttons
     if query.data == "buy":
         buy_message = (
             "Buy $SLND- (Solend) 📈\n\n"
@@ -100,24 +115,13 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "🔴 Insufficient balance for buy amount + gas."
         )
         await query.edit_message_text(buy_message, reply_markup=main_menu_keyboard())
-    elif query.data == "sell":
-        sell_message = (
-            "Sell $SLND- (Solend) 📉\n\n"
-            "Share token with your Reflink\n\n"
-            "Balance: 2.419 SOL\n\n"
-            "Price: $0.3594 - LIQ: $17.48K - MC: $35.94M\n\n"
-            "30m: -1.64% - 24h: -5.66%\n\n"
-            "Ready to sell? Please confirm the amount."
-        )
-        await query.edit_message_text(sell_message, reply_markup=main_menu_keyboard())
-    # Add other button functionalities as in your original code...
+    # ... (rest of your button handler code)
 
 # Function to set up polling
 def run_bot():
-    TOKEN = "7761108718:AAFmR_1ZtMAXX8DBi_r3BCo7418MtK6C1GU"  # Replace with your bot token
-    
-    # Set up the application (use polling method)
-    application = Application.builder().token(TOKEN).build()
+    clear_webhook()  # Clear any existing webhooks
+
+    application = Application.builder().token("7761108718:AAFmR_1ZtMAXX8DBi_r3BCo7418MtK6C1GU").build()
 
     # Add handlers for commands and button clicks
     application.add_handler(CommandHandler("start", start))
