@@ -1,6 +1,7 @@
 import logging
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, Bot
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
+import os
 
 # Set up logging
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
@@ -45,21 +46,25 @@ def back_to_main_keyboard():
 
 # Function to handle the /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    # Corrected file path for the video
+    # Update the file path to be dynamic (use a local path for testing or a URL for production)
     video_path = "C:/Users/IYOHA ODUTOLA/Documents/new python bot/WhatsApp Video 2024-12-03 at 12.58.12 AM.mp4"
     
+    # Send video and handle missing file error
     try:
-        # Send the video
-        await context.bot.send_video(
-            chat_id=update.effective_chat.id,
-            video=open(video_path, 'rb'),
-            caption="Welcome to Trojan on Solana! 🎥"
-        )
-    except FileNotFoundError:
-        # Log an error and send a message if the video file is missing
-        logger.error(f"Video file not found at {video_path}")
-        await update.message.reply_text("Error: Welcome video not available.")
-        return
+        if os.path.exists(video_path):  # Check if file exists
+            with open(video_path, 'rb') as video_file:
+                await context.bot.send_video(
+                    chat_id=update.effective_chat.id,
+                    video=video_file,
+                    caption="Welcome to Trojan on Solana! 🎥"
+                )
+        else:
+            logger.error(f"Video file not found at {video_path}")
+            await update.message.reply_text("Error: Welcome video not available.")
+            return
+    except Exception as e:
+        logger.error(f"Error sending video: {e}")
+        await update.message.reply_text("Error: Could not send video.")
     
     # Send the welcome text
     welcome_message = (
@@ -155,8 +160,18 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     else:
         await query.edit_message_text("⚠️ *Feature not implemented yet.*", reply_markup=back_to_main_keyboard())
 
+# Function to clear any existing webhook (important for resolving conflicts)
+def clear_webhook():
+    bot = Bot(BOT_TOKEN)
+    bot.delete_webhook(drop_pending_updates=True)
+    logger.info("Webhook cleared.")
+
 # Function to run the bot
 def run_bot():
+    # Clear any existing webhook before starting the bot
+    clear_webhook()
+
+    # Create the Application object and start the polling process
     application = Application.builder().token(BOT_TOKEN).build()
 
     # Add command and callback handlers
