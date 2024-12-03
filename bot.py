@@ -45,6 +45,23 @@ def back_to_main_keyboard():
 
 # Function to handle the /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    # Corrected file path for the video
+    video_path = "C:/Users/IYOHA ODUTOLA/Documents/new python bot/WhatsApp Video 2024-12-03 at 12.58.12 AM.mp4"
+    
+    try:
+        # Send the video
+        await context.bot.send_video(
+            chat_id=update.effective_chat.id,
+            video=open(video_path, 'rb'),
+            caption="Welcome to Trojan on Solana! 🎥"
+        )
+    except FileNotFoundError:
+        # Log an error and send a message if the video file is missing
+        logger.error(f"Video file not found at {video_path}")
+        await update.message.reply_text("Error: Welcome video not available.")
+        return
+    
+    # Send the welcome text
     welcome_message = (
         f"Welcome to Trojan on Solana, {update.message.from_user.first_name}!\n\n"
         "Introducing a cutting-edge bot crafted exclusively for Solana Traders. "
@@ -98,9 +115,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "• Total unpaid: 0 SOL ($0.00)\n\n"
             "Rewards are paid daily and airdropped directly to your chosen Rewards Wallet. "
             "You must have accrued at least 0.005 SOL in unpaid fees to be eligible for a payout.\n\n"
-            "We've established a tiered referral system, ensuring that as more individuals come onboard, rewards extend through "
-            "five different layers of users. This structure not only benefits community growth but also significantly increases "
-            "the percentage share of fees for everyone.\n\n"
             "Your Referral Link:\n"
             "[https://t.me/solana_trojanbot?start](https://t.me/solana_trojanbot?start)\n\n"
             "Stay tuned for more details on how we'll reward active users and happy trading!"
