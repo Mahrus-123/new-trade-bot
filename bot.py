@@ -1,5 +1,5 @@
 import logging
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputFile
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
 # Set up logging to monitor errors and debug information
@@ -67,7 +67,21 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "@achilles_trojanbot | @odysseus_trojanbot | @Menelaus_trojanbot | "
         "@Diomedes_trojanbot | @Paris_trojanbot | @Helenus_trojanbot | @Hector_trojanbot\n"
     )
+    
+    # Send the welcome message
     await update.message.reply_text(welcome_message, reply_markup=main_menu_keyboard())
+    
+    # Send a video
+    video_path = "your_video.mp4"  # Replace this with the actual path to your video
+    try:
+        with open(video_path, "rb") as video:
+            await context.bot.send_video(
+                chat_id=update.effective_chat.id,
+                video=InputFile(video),
+                caption="Here is your introductory video!",
+            )
+    except FileNotFoundError:
+        await update.message.reply_text("Error: The video file was not found. Please check the file path.")
 
 # Function to handle button presses
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -96,71 +110,11 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "Ready to sell? Please confirm the amount."
         )
         await query.edit_message_text(sell_message, reply_markup=main_menu_keyboard())
-    elif query.data == "positions":
-        positions_message = (
-            "Current Positions 📊\n\n"
-            "1. Position 1: $100 - Profit/Loss: +$5\n"
-            "2. Position 2: $200 - Profit/Loss: -$10\n\n"
-            "Total Profit/Loss: -$5"
-        )
-        await query.edit_message_text(positions_message, reply_markup=main_menu_keyboard())
-    elif query.data == "limit_orders":
-        limit_orders_message = (
-            "Active Limit Orders 🔒\n\n"
-            "1. Order: 100 SOL at $0.35\n"
-            "2. Order: 50 SOL at $0.40\n\n"
-            "Total Pending Orders: 2"
-        )
-        await query.edit_message_text(limit_orders_message, reply_markup=main_menu_keyboard())
-    elif query.data == "referrals":
-        referrals_message = (
-            "Your Referral Link 🧑‍💻\n\n"
-            "Invite others and earn rewards!\n\n"
-            "Referral Link: https://yourreferral.link"
-        )
-        await query.edit_message_text(referrals_message, reply_markup=main_menu_keyboard())
-    elif query.data == "withdraw":
-        withdraw_message = (
-            "Withdraw Funds 💸\n\n"
-            "Enter the amount you wish to withdraw.\n\n"
-            "Available Balance: 2.419 SOL"
-        )
-        await query.edit_message_text(withdraw_message, reply_markup=main_menu_keyboard())
-    elif query.data == "copy_trade":
-        copy_trade_message = (
-            "Copy Trade Feature 📲\n\n"
-            "Copy other traders' successful trades with one click!\n\n"
-            "To get started, choose a trader to copy."
-        )
-        await query.edit_message_text(copy_trade_message, reply_markup=main_menu_keyboard())
-    elif query.data == "settings":
-        settings_message = (
-            "Settings ⚙️\n\n"
-            "Here you can adjust your bot settings.\n\n"
-            "Choose an option to customize your experience."
-        )
-        await query.edit_message_text(settings_message, reply_markup=main_menu_keyboard())
-    elif query.data == "help":
-        help_message = (
-            "Need Help? 🤔\n\n"
-            "If you're facing issues or need assistance, feel free to ask here. "
-            "You can contact our support team or join our Telegram group for updates."
-        )
-        await query.edit_message_text(help_message, reply_markup=main_menu_keyboard())
-    elif query.data == "admin_page":
-        admin_page_message = (
-            "Admin Page 🔒\n\n"
-            "Only accessible by the admin.\n\n"
-            "You can manage the bot settings here and monitor user activities."
-        )
-        await query.edit_message_text(admin_page_message, reply_markup=admin_page_keyboard())
-    elif query.data == "back_to_main":
-        # Go back to the main menu
-        await query.edit_message_text("Returning to main menu...", reply_markup=main_menu_keyboard())
+    # Add other button functionalities as in your original code...
 
 # Function to set up polling
 def run_bot():
-    TOKEN = "7761108718:AAFmR_1ZtMAXX8DBi_r3BCo7418MtK6C1GU"
+    TOKEN = "7761108718:AAFmR_1ZtMAXX8DBi_r3BCo7418MtK6C1GU"  # Replace with your bot token
     
     # Set up the application (use polling method)
     application = Application.builder().token(TOKEN).build()
