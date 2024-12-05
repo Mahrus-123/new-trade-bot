@@ -190,7 +190,7 @@ def webhook():
 
 # Set webhook function
 def set_webhook():
-    webhook_url = "https://your-server.com/webhook"  # Replace with your actual deployed URL
+    webhook_url = "https://new-trade-bot-48.onrender.com"  # Replace with your actual deployed URL
     try:
         bot.set_webhook(url=webhook_url)
         logger.info(f"Webhook set to {webhook_url}")
