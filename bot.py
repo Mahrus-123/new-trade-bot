@@ -3,7 +3,6 @@ import os
 from flask import Flask, request
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, Bot
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
-from telegram.ext import Dispatcher, Handler
 
 # Set up logging to monitor errors and debug information
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -13,7 +12,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 # Telegram bot token
-BOT_TOKEN = "7761108718:AAFmR_1ZtMAXX8DBi_r3BCo7418MtK6C1GU"
+BOT_TOKEN = "YOUR_BOT_TOKEN"
 bot = Bot(BOT_TOKEN)
 
 # Set up the Application object
@@ -21,8 +20,11 @@ application = Application.builder().token(BOT_TOKEN).build()
 
 # Function to clear existing webhook
 def clear_webhook():
-    bot.delete_webhook(drop_pending_updates=True)
-    logger.info("Webhook cleared.")
+    try:
+        bot.delete_webhook(drop_pending_updates=True)
+        logger.info("Webhook cleared.")
+    except Exception as e:
+        logger.error(f"Error clearing webhook: {e}")
 
 # Define the main menu keyboard
 def main_menu_keyboard():
@@ -45,7 +47,7 @@ def main_menu_keyboard():
 # Function to handle the /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Video path (use the correct path to your video)
-    video_path = "C:/Users/IYOHA ODUTOLA/Documents/new python bot/WhatsApp Video 2024-12-03 at 12.58.12 AM.mp4"
+    video_path = "path/to/your/video.mp4"  # Update to correct path
 
     try:
         # Check if the video exists and send it
@@ -174,29 +176,33 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 # Flask route to handle webhook
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    # Get the update from the incoming webhook
-    json_str = request.get_data().decode("UTF-8")
-    update = Update.de_json(json_str, bot)
-    
-    # Dispatch the update to the appropriate handler
-    application.process_update(update)
-    
-    return "OK", 200
+    try:
+        # Get the update from the incoming webhook
+        json_str = request.get_data().decode("UTF-8")
+        update = Update.de_json(json_str, bot)
+
+        # Dispatch the update to the appropriate handler
+        application.process_update(update)
+        return "OK", 200
+    except Exception as e:
+        logger.error(f"Error processing webhook: {e}")
+        return "Error", 500
 
 # Set webhook function
 def set_webhook():
     webhook_url = "https://your-server.com/webhook"  # Replace with your actual deployed URL
-    bot.set_webhook(url=webhook_url)
-    logger.info(f"Webhook set to {webhook_url}")
+    try:
+        bot.set_webhook(url=webhook_url)
+        logger.info(f"Webhook set to {webhook_url}")
+    except Exception as e:
+        logger.error(f"Error setting webhook: {e}")
 
 # Function to run the bot
 def run_bot():
     clear_webhook()  # Clear any existing webhooks
-    
-    # Set the webhook
-    set_webhook()
-    
-    # Start the Flask app
+    set_webhook()  # Set the webhook
+
+    # Start the Flask app (for webhook handling)
     app.run(host="0.0.0.0", port=80)
 
 # Entry point of the script
