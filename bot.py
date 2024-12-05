@@ -1,21 +1,32 @@
 import logging
+import os
+from flask import Flask, request
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, Bot
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
-import os
+from telegram.ext import Dispatcher, Handler
 
 # Set up logging to monitor errors and debug information
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Function to clear existing webhook (important for resolving conflicts)
+# Flask app to handle web requests
+app = Flask(__name__)
+
+# Telegram bot token
+BOT_TOKEN = "7761108718:AAFmR_1ZtMAXX8DBi_r3BCo7418MtK6C1GU"
+bot = Bot(BOT_TOKEN)
+
+# Set up the Application object
+application = Application.builder().token(BOT_TOKEN).build()
+
+# Function to clear existing webhook
 def clear_webhook():
-    bot = Bot("7761108718:AAFmR_1ZtMAXX8DBi_r3BCo7418MtK6C1GU")
     bot.delete_webhook(drop_pending_updates=True)
     logger.info("Webhook cleared.")
 
 # Define the main menu keyboard
 def main_menu_keyboard():
-    return InlineKeyboardMarkup([[
+    return InlineKeyboardMarkup([[ 
         InlineKeyboardButton("Buy", callback_data="buy"),
         InlineKeyboardButton("Sell", callback_data="sell"),
     ], [
@@ -90,6 +101,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "🔴 Insufficient balance for buy amount + gas."
         )
         await query.edit_message_text(buy_message, reply_markup=main_menu_keyboard())
+    
     elif query.data == "sell":
         sell_message = (
             "Sell $SLND- (Solend) 📉\n\n"
@@ -100,6 +112,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "Ready to sell? Please confirm the amount."
         )
         await query.edit_message_text(sell_message, reply_markup=main_menu_keyboard())
+    
     elif query.data == "positions":
         positions_message = (
             "Current Positions 📊\n\n"
@@ -108,6 +121,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "Total Profit/Loss: -$5"
         )
         await query.edit_message_text(positions_message, reply_markup=main_menu_keyboard())
+    
     elif query.data == "limit_orders":
         limit_orders_message = (
             "Active Limit Orders 🔒\n\n"
@@ -116,6 +130,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "Total Pending Orders: 2"
         )
         await query.edit_message_text(limit_orders_message, reply_markup=main_menu_keyboard())
+    
     elif query.data == "referrals":
         referrals_message = (
             "Your Referral Link 🧑‍💻\n\n"
@@ -123,6 +138,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "Referral Link: https://yourreferral.link"
         )
         await query.edit_message_text(referrals_message, reply_markup=main_menu_keyboard())
+    
     elif query.data == "withdraw":
         withdraw_message = (
             "Withdraw Funds 💸\n\n"
@@ -130,6 +146,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "Available Balance: 2.419 SOL"
         )
         await query.edit_message_text(withdraw_message, reply_markup=main_menu_keyboard())
+    
     elif query.data == "copy_trade":
         copy_trade_message = (
             "Copy Trade Feature 📲\n\n"
@@ -137,6 +154,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "To get started, choose a trader to copy."
         )
         await query.edit_message_text(copy_trade_message, reply_markup=main_menu_keyboard())
+    
     elif query.data == "settings":
         settings_message = (
             "Settings ⚙️\n\n"
@@ -144,6 +162,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "Choose an option to customize your experience."
         )
         await query.edit_message_text(settings_message, reply_markup=main_menu_keyboard())
+    
     elif query.data == "help":
         help_message = (
             "Need Help? 🤔\n\n"
@@ -152,18 +171,33 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         )
         await query.edit_message_text(help_message, reply_markup=main_menu_keyboard())
 
-# Function to set up polling
+# Flask route to handle webhook
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    # Get the update from the incoming webhook
+    json_str = request.get_data().decode("UTF-8")
+    update = Update.de_json(json_str, bot)
+    
+    # Dispatch the update to the appropriate handler
+    application.process_update(update)
+    
+    return "OK", 200
+
+# Set webhook function
+def set_webhook():
+    webhook_url = "https://your-server.com/webhook"  # Replace with your actual deployed URL
+    bot.set_webhook(url=webhook_url)
+    logger.info(f"Webhook set to {webhook_url}")
+
+# Function to run the bot
 def run_bot():
     clear_webhook()  # Clear any existing webhooks
-
-    application = Application.builder().token("7761108718:AAFmR_1ZtMAXX8DBi_r3BCo7418MtK6C1GU").build()
-
-    # Add handlers for commands and button clicks
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CallbackQueryHandler(button_handler))
-
-    # Start polling to receive updates
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    
+    # Set the webhook
+    set_webhook()
+    
+    # Start the Flask app
+    app.run(host="0.0.0.0", port=80)
 
 # Entry point of the script
 if __name__ == "__main__":
