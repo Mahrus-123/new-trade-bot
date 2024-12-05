@@ -1,30 +1,11 @@
 import logging
 import os
-from flask import Flask, request
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, Bot
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
 # Set up logging to monitor errors and debug information
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# Flask app to handle web requests
-app = Flask(__name__)
-
-# Telegram bot token
-BOT_TOKEN = "7761108718:AAFmR_1ZtMAXX8DBi_r3BCo7418MtK6C1GU"
-bot = Bot(BOT_TOKEN)
-
-# Set up the Application object
-application = Application.builder().token(BOT_TOKEN).build()
-
-# Function to clear existing webhook
-def clear_webhook():
-    try:
-        bot.delete_webhook(drop_pending_updates=True)
-        logger.info("Webhook cleared.")
-    except Exception as e:
-        logger.error(f"Error clearing webhook: {e}")
 
 # Define the main menu keyboard
 def main_menu_keyboard():
@@ -47,7 +28,7 @@ def main_menu_keyboard():
 # Function to handle the /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Video path (use the correct path to your video)
-    video_path = "path/to/your/video.mp4"  # Update to correct path
+    video_path = "C:/Users/IYOHA ODUTOLA/Documents/new python bot/WhatsApp Video 2024-12-03 at 12.58.12 AM.mp4"
 
     try:
         # Check if the video exists and send it
@@ -103,7 +84,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "🔴 Insufficient balance for buy amount + gas."
         )
         await query.edit_message_text(buy_message, reply_markup=main_menu_keyboard())
-    
     elif query.data == "sell":
         sell_message = (
             "Sell $SLND- (Solend) 📉\n\n"
@@ -114,7 +94,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "Ready to sell? Please confirm the amount."
         )
         await query.edit_message_text(sell_message, reply_markup=main_menu_keyboard())
-    
     elif query.data == "positions":
         positions_message = (
             "Current Positions 📊\n\n"
@@ -123,7 +102,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "Total Profit/Loss: -$5"
         )
         await query.edit_message_text(positions_message, reply_markup=main_menu_keyboard())
-    
     elif query.data == "limit_orders":
         limit_orders_message = (
             "Active Limit Orders 🔒\n\n"
@@ -132,7 +110,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "Total Pending Orders: 2"
         )
         await query.edit_message_text(limit_orders_message, reply_markup=main_menu_keyboard())
-    
     elif query.data == "referrals":
         referrals_message = (
             "Your Referral Link 🧑‍💻\n\n"
@@ -140,7 +117,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "Referral Link: https://yourreferral.link"
         )
         await query.edit_message_text(referrals_message, reply_markup=main_menu_keyboard())
-    
     elif query.data == "withdraw":
         withdraw_message = (
             "Withdraw Funds 💸\n\n"
@@ -148,7 +124,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "Available Balance: 2.419 SOL"
         )
         await query.edit_message_text(withdraw_message, reply_markup=main_menu_keyboard())
-    
     elif query.data == "copy_trade":
         copy_trade_message = (
             "Copy Trade Feature 📲\n\n"
@@ -156,7 +131,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "To get started, choose a trader to copy."
         )
         await query.edit_message_text(copy_trade_message, reply_markup=main_menu_keyboard())
-    
     elif query.data == "settings":
         settings_message = (
             "Settings ⚙️\n\n"
@@ -164,7 +138,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             "Choose an option to customize your experience."
         )
         await query.edit_message_text(settings_message, reply_markup=main_menu_keyboard())
-    
     elif query.data == "help":
         help_message = (
             "Need Help? 🤔\n\n"
@@ -173,37 +146,17 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         )
         await query.edit_message_text(help_message, reply_markup=main_menu_keyboard())
 
-# Flask route to handle webhook
-@app.route("/webhook", methods=["POST"])
-def webhook():
-    try:
-        # Get the update from the incoming webhook
-        json_str = request.get_data().decode("UTF-8")
-        update = Update.de_json(json_str, bot)
-
-        # Dispatch the update to the appropriate handler
-        application.process_update(update)
-        return "OK", 200
-    except Exception as e:
-        logger.error(f"Error processing webhook: {e}")
-        return "Error", 500
-
-# Set webhook function
-def set_webhook():
-    webhook_url = "https://new-trade-bot-48.onrender.com"  # Replace with your actual deployed URL
-    try:
-        bot.set_webhook(url=webhook_url)
-        logger.info(f"Webhook set to {webhook_url}")
-    except Exception as e:
-        logger.error(f"Error setting webhook: {e}")
-
-# Function to run the bot
+# Function to start the bot using polling
 def run_bot():
-    clear_webhook()  # Clear any existing webhooks
-    set_webhook()  # Set the webhook
+    application = Application.builder().token("7761108718:AAFmR_1ZtMAXX8DBi_r3BCo7418MtK6C1GU").build()
 
-    # Start the Flask app (for webhook handling)
-    app.run(host="0.0.0.0", port=80)
+    # Add handlers for commands and button clicks
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CallbackQueryHandler(button_handler))
+
+    # Start the bot with polling
+    logger.info("Bot is running...")
+    application.run_polling()
 
 # Entry point of the script
 if __name__ == "__main__":
