@@ -1,10 +1,9 @@
 import logging
 import os
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
-from flask import Flask, request
-from telegram import Bot
 import requests
+from flask import Flask, request
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Bot, Update
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
 # Set up logging to monitor errors and debug information
 logging.basicConfig(
@@ -18,7 +17,7 @@ app = Flask(__name__)
 
 # Define the main menu keyboard
 def main_menu_keyboard():
-    return InlineKeyboardMarkup([
+    return InlineKeyboardMarkup([  # Inline keyboard with options
         [
             InlineKeyboardButton("Buy", callback_data="buy"),
             InlineKeyboardButton("Sell", callback_data="sell"),
@@ -95,23 +94,91 @@ async def sell_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     )
     await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
 
-# Define similar functions for the other buttons (positions, limit_orders, referrals, etc.)
+async def positions_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    message = (
+        "Your open positions:\n\n"
+        "1. $SLND - 2.0 SOL\n"
+        "2. $BTC - 1.5 SOL\n\n"
+        "Want to close a position? Select an option below."
+    )
+    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
+
+async def limit_orders_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    message = (
+        "Your limit orders:\n\n"
+        "1. Buy $SLND at $0.35 - 1 SOL\n"
+        "2. Sell $SLND at $0.40 - 2 SOL\n\n"
+        "Would you like to modify or cancel an order?"
+    )
+    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
+
+async def referrals_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    message = (
+        "Referral program:\n\n"
+        "Invite a friend and get 10% of their trading fees.\n\n"
+        "Use your referral link: https://example.com/referral\n\n"
+        "Share it now!"
+    )
+    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
+
+async def withdraw_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    message = (
+        "Withdraw your funds to your wallet.\n\n"
+        "Amount: 2.0 SOL\n\n"
+        "Please confirm your withdrawal request."
+    )
+    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
+
+async def copy_trade_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    message = (
+        "Copy Trade allows you to copy the trades of top traders.\n\n"
+        "To start, select a trader to copy.\n\n"
+        "Top traders: @Trader1, @Trader2, @Trader3"
+    )
+    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
+
+async def settings_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    message = (
+        "Settings:\n\n"
+        "1. Change Language\n"
+        "2. Enable Notifications\n"
+        "3. Account Settings\n\n"
+        "Select an option to modify your settings."
+    )
+    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
+
+async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    message = (
+        "Help:\n\n"
+        "If you need help with any part of the bot, feel free to reach out!\n"
+        "Here are some frequently asked questions:\n\n"
+        "1. How to deposit funds?\n"
+        "2. How to start trading?\n"
+        "3. How to withdraw SOL?"
+    )
+    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
 
 # Flask route to handle the webhook
 @app.route(f'/{os.getenv("TELEGRAM_BOT_TOKEN")}', methods=['POST'])
 def webhook():
     json_str = request.get_data().decode("UTF-8")
-    update = Update.de_json(json_str, Bot(token=os.getenv("7761108718:AAGwA_irQ3czP3ANsz71tAGBZp3eP5E2XRs")))
-    application = Application.builder().token(os.getenv("7761108718:AAGwA_irQ3czP3ANsz71tAGBZp3eP5E2XRs")).build()
+    update = Update.de_json(json_str, Bot(token=os.getenv("TELEGRAM_BOT_TOKEN")))
+    application = Application.builder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
     application.update_queue.put(update)
     return 'OK'
 
 # Set the webhook for Telegram bot
 def set_webhook():
-    url = f"https://new-trade-bot-46-e3ru.onrender.com/{os.getenv('7761108718:AAGwA_irQ3czP3ANsz71tAGBZp3eP5E2XRs')}/setWebhook"
-    webhook_url = f"https://new-trade-bot-46-e3ru.onrender.com/{os.getenv('7761108718:AAGwA_irQ3czP3ANsz71tAGBZp3eP5E2XRs')}"  # Replace with your server's URL
+    bot_token = os.getenv('TELEGRAM_BOT_TOKEN')  # Get the bot token from environment variables
+    if not bot_token:
+        logger.error("Bot token is missing. Please set it in the environment variables.")
+        return
     
-    response = requests.get(url, params={'url': webhook_url})
+    webhook_url = f"https://{os.getenv('RENDER_URL')}/{bot_token}"  # Construct the webhook URL
+
+    url = f"https://api.telegram.org/bot{bot_token}/setWebhook?url={webhook_url}"
+    response = requests.get(url)
+    
     if response.status_code == 200:
         logger.info("Webhook successfully set.")
     else:
