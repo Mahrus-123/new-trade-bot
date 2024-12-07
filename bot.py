@@ -2,7 +2,9 @@ import logging
 import os
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
-from urllib.parse import quote  # Use this instead of url_quote
+from flask import Flask, request
+from telegram import Bot
+import requests
 
 # Set up logging to monitor errors and debug information
 logging.basicConfig(
@@ -10,6 +12,9 @@ logging.basicConfig(
     level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
+
+# Flask app setup
+app = Flask(__name__)
 
 # Define the main menu keyboard
 def main_menu_keyboard():
@@ -92,24 +97,27 @@ async def sell_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 # Define similar functions for the other buttons (positions, limit_orders, referrals, etc.)
 
-# Function to start the bot using polling
-def run_bot():
-    token = os.getenv("TELEGRAM_BOT_TOKEN")  # Use an environment variable
-    if not token:
-        raise ValueError("Bot token not set. Set TELEGRAM_BOT_TOKEN environment variable.")
+# Flask route to handle the webhook
+@app.route(f'/{os.getenv("TELEGRAM_BOT_TOKEN")}', methods=['POST'])
+def webhook():
+    json_str = request.get_data().decode("UTF-8")
+    update = Update.de_json(json_str, Bot(token=os.getenv("TELEGRAM_BOT_TOKEN")))
+    application = Application.builder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
+    application.update_queue.put(update)
+    return 'OK'
 
-    application = Application.builder().token(token).build()
+# Set the webhook for Telegram bot
+def set_webhook():
+    url = f"https://api.telegram.org/bot{os.getenv('TELEGRAM_BOT_TOKEN')}/setWebhook"
+    webhook_url = f"https://your-server-url.com/{os.getenv('TELEGRAM_BOT_TOKEN')}"  # Replace with your server's URL
+    
+    response = requests.get(url, params={'url': webhook_url})
+    if response.status_code == 200:
+        logger.info("Webhook successfully set.")
+    else:
+        logger.error(f"Failed to set webhook: {response.text}")
 
-    # Command Handlers
-    application.add_handler(CommandHandler("start", start))
-
-    # CallbackQuery Handlers
-    application.add_handler(CallbackQueryHandler(buy_handler, pattern="^buy$"))
-    application.add_handler(CallbackQueryHandler(sell_handler, pattern="^sell$"))
-    # Add handlers for other buttons here...
-
-    logger.info("Bot is running...")
-    application.run_polling()
-
+# Run the Flask app
 if __name__ == "__main__":
-    run_bot()
+    set_webhook()  # Set the webhook when starting the server
+    app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 4000)))
