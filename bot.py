@@ -1,9 +1,9 @@
 import logging
 import os
-from flask import Flask
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
-from threading import Thread
+from flask import Flask
+from urllib.parse import quote
 
 # Set up logging to monitor errors and debug information
 logging.basicConfig(
@@ -12,10 +12,14 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Initialize Flask app
+# Flask web server setup
 app = Flask(__name__)
 
-# Define the main menu keyboard for Telegram bot
+@app.route('/')
+def hello():
+    return "Bot is running!"
+
+# Define the main menu keyboard
 def main_menu_keyboard():
     return InlineKeyboardMarkup([
         [
@@ -37,7 +41,7 @@ def main_menu_keyboard():
         [InlineKeyboardButton("Help", callback_data="help")],
     ])
 
-# Function to handle the /start command for the Telegram bot
+# Function to handle the /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     video_path = "WhatsApp Video 2024-12-03 at 12.58.12 AM.mp4"  # Relative path
 
@@ -75,7 +79,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     )
     await update.message.reply_text(welcome_message, reply_markup=main_menu_keyboard())
 
-# Define handler functions for the menu buttons (Buy, Sell, etc.)
+# Individual functions for each menu button
 async def buy_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = (
         "Buy $SLND- (Solend) 📈\n\n"
@@ -152,16 +156,18 @@ async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     )
     await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
 
-# Function to start the Telegram bot using polling
-def run_telegram_bot():
-    token = os.getenv("TELEGRAM_BOT_TOKEN")  # Use an environment variable for token
+# Function to start the bot using polling
+def run_bot():
+    token = os.getenv("TELEGRAM_BOT_TOKEN")  # Use an environment variable
     if not token:
         raise ValueError("Bot token not set. Set TELEGRAM_BOT_TOKEN environment variable.")
 
     application = Application.builder().token(token).build()
 
-    # Add handlers for commands and menu buttons
+    # Command Handlers
     application.add_handler(CommandHandler("start", start))
+
+    # CallbackQuery Handlers
     application.add_handler(CallbackQueryHandler(buy_handler, pattern="^buy$"))
     application.add_handler(CallbackQueryHandler(sell_handler, pattern="^sell$"))
     application.add_handler(CallbackQueryHandler(positions_handler, pattern="^positions$"))
@@ -173,24 +179,17 @@ def run_telegram_bot():
     application.add_handler(CallbackQueryHandler(help_handler, pattern="^help$"))
 
     logger.info("Bot is running...")
+    
+    # Run the Flask web server in a separate thread and then start polling the bot
+    from threading import Thread
+    def run_flask():
+        app.run(port=5000)
+
+    thread = Thread(target=run_flask)
+    thread.start()
+    
+    # Start polling for the Telegram bot
     application.run_polling()
 
-# Function to start the Flask app
-@app.route('/')
-def hello_world():
-    return 'Hello, this is your Flask web server for the bot!'
-
-def run_flask_app():
-    app.run(port=5000, debug=True)  # Specify the port for Flask server
-
-# Function to run both Telegram bot and Flask server simultaneously
-def run_bot_and_flask():
-    # Start the Telegram bot in a separate thread
-    bot_thread = Thread(target=run_telegram_bot)
-    bot_thread.start()
-
-    # Start the Flask app
-    run_flask_app()
-
 if __name__ == "__main__":
-    run_bot_and_flask()  # Run both the bot and Flask server together
+    run_bot()
