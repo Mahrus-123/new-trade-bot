@@ -1,6 +1,7 @@
 import logging
 import os
 import requests
+import json
 from flask import Flask, request
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Bot, Update
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
@@ -161,13 +162,24 @@ async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 # Flask route to handle the webhook
 @app.route(f'/{os.getenv("TELEGRAM_BOT_TOKEN")}', methods=['POST'])
 def webhook():
-    json_str = request.get_data().decode("UTF-8")
-    update = Update.de_json(json_str, Bot(token=os.getenv("TELEGRAM_BOT_TOKEN")))
-    application = Application.builder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
-    application.update_queue.put(update)
-    return 'OK'
+    try:
+        json_str = request.get_data().decode("UTF-8")
+        logger.info(f"Received JSON data: {json_str}")  # Log the raw JSON data
 
-# Set the webhook for Telegram bot
+        # Parse JSON string into a dictionary
+        data = json.loads(json_str)  # Convert string to dictionary
+        
+        # Now pass the data to Update.de_json
+        update = Update.de_json(data, Bot(token=os.getenv("TELEGRAM_BOT_TOKEN")))
+        
+        application = Application.builder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
+        application.update_queue.put(update)
+        
+        return 'OK'
+    except Exception as e:
+        logger.error(f"Error processing webhook: {e}")
+        return 'Error', 500
+
 # Set the webhook for Telegram bot
 def set_webhook():
     bot_token = os.getenv('TELEGRAM_BOT_TOKEN')  # Get the bot token from environment variables
@@ -175,13 +187,9 @@ def set_webhook():
         logger.error("Bot token is missing. Please set it in the environment variables.")
         return
     
-    # Replace this with your actual Render app URL and bot token
-    render_app_url = "https://new-trade-bot-62.onrender.com"  # Your Render app URL
-    webhook_url = f"{render_app_url}/{bot_token}"  # Construct the full webhook URL
+    webhook_url = f"https://{os.getenv('https://new-trade-bot-63.onrender.com')}/{bot_token}"  # Use the render URL from environment variables
 
-    # Call the Telegram API to set the webhook
     url = f"https://api.telegram.org/bot{bot_token}/setWebhook?url={webhook_url}"
-    
     response = requests.get(url)
     
     if response.status_code == 200:
