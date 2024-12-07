@@ -109,7 +109,7 @@ def webhook():
 # Set the webhook for Telegram bot
 def set_webhook():
     url = f"https://new-trade-bot-46-e3ru.onrender.com/{os.getenv('TELEGRAM_BOT_TOKEN')}/setWebhook"
-    webhook_url = f"https://your-server-url.com/{os.getenv('TELEGRAM_BOT_TOKEN')}"  # Replace with your server's URL
+    webhook_url = f"https://new-trade-bot-46-e3ru.onrender.com/{os.getenv('TELEGRAM_BOT_TOKEN')}"  # Replace with your server's URL
     
     response = requests.get(url, params={'url': webhook_url})
     if response.status_code == 200:
