@@ -18,7 +18,7 @@ app = Flask(__name__)
 
 # Define the main menu keyboard
 def main_menu_keyboard():
-    return InlineKeyboardMarkup([  
+    return InlineKeyboardMarkup([
         [
             InlineKeyboardButton("Buy", callback_data="buy"),
             InlineKeyboardButton("Sell", callback_data="sell"),
@@ -178,36 +178,15 @@ def webhook():
         logger.info(f"Received JSON data: {json_str}")
         data = json.loads(json_str)
         update = Update.de_json(data, Bot(token=os.getenv("TELEGRAM_BOT_TOKEN")))
-        
-        # Create the Application instance here to process updates
         application = Application.builder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
-        
-        # Handle the update with the necessary dispatcher
         application.update_queue.put(update)
         return 'OK'
     except Exception as e:
         logger.error(f"Error processing webhook: {e}")
         return 'Error', 500
 
-# Set the webhook for the bot
-def set_webhook():
-    bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
-    webhook_url = f"https://{os.getenv('RENDER_APP_URL')}/{bot_token}"  # Use Render app's URL
-    
-    url = f"https://api.telegram.org/bot{bot_token}/setWebhook?url={webhook_url}"
-    response = requests.get(url)
-    
-    if response.status_code == 200:
-        logger.info("Webhook successfully set.")
-    else:
-        logger.error(f"Failed to set webhook: {response.text}")
-
 # Add the handlers to the application
 if __name__ == "__main__":
-    # Set the webhook when starting the app
-    set_webhook()
-
-    # Initialize the application and add handlers
     application = Application.builder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CallbackQueryHandler(buy_handler, pattern="^buy$"))
@@ -219,6 +198,5 @@ if __name__ == "__main__":
     application.add_handler(CallbackQueryHandler(copy_trade_handler, pattern="^copy_trade$"))
     application.add_handler(CallbackQueryHandler(settings_handler, pattern="^settings$"))
     application.add_handler(CallbackQueryHandler(help_handler, pattern="^help$"))
-    
-    # Start Flask app
-    app.run(port=5000)
+    application.run_polling(stop_signals=None)
+    app.run(port=5000)  
