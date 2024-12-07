@@ -101,8 +101,8 @@ async def sell_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 @app.route(f'/{os.getenv("TELEGRAM_BOT_TOKEN")}', methods=['POST'])
 def webhook():
     json_str = request.get_data().decode("UTF-8")
-    update = Update.de_json(json_str, Bot(token=os.getenv("TELEGRAM_BOT_TOKEN")))
-    application = Application.builder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
+    update = Update.de_json(json_str, Bot(token=os.getenv("7761108718:AAGwA_irQ3czP3ANsz71tAGBZp3eP5E2XRs")))
+    application = Application.builder().token(os.getenv("7761108718:AAGwA_irQ3czP3ANsz71tAGBZp3eP5E2XRs")).build()
     application.update_queue.put(update)
     return 'OK'
 
