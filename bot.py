@@ -2,8 +2,7 @@ import logging
 import os
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
-from flask import Flask
-from urllib.parse import quote
+from urllib.parse import quote  # Use this instead of url_quote
 
 # Set up logging to monitor errors and debug information
 logging.basicConfig(
@@ -11,13 +10,6 @@ logging.basicConfig(
     level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
-
-# Flask web server setup
-app = Flask(__name__)
-
-@app.route('/')
-def hello():
-    return "Bot is running!"
 
 # Define the main menu keyboard
 def main_menu_keyboard():
@@ -98,63 +90,7 @@ async def sell_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     )
     await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
 
-async def positions_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    message = (
-        "Current Positions 📊\n\n"
-        "1. Position 1: $100 - Profit/Loss: +$5\n"
-        "2. Position 2: $200 - Profit/Loss: -$10\n\n"
-        "Total Profit/Loss: -$5"
-    )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
-
-async def limit_orders_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    message = (
-        "Active Limit Orders 🔒\n\n"
-        "1. Order: 100 SOL at $0.35\n"
-        "2. Order: 50 SOL at $0.40\n\n"
-        "Total Pending Orders: 2"
-    )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
-
-async def referrals_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    message = (
-        "Your Referral Link 🧑‍💻\n\n"
-        "Invite others and earn rewards!\n\n"
-        "Referral Link: https://yourreferral.link"
-    )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
-
-async def withdraw_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    message = (
-        "Withdraw Funds 💸\n\n"
-        "Enter the amount you wish to withdraw.\n\n"
-        "Available Balance: 2.419 SOL"
-    )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
-
-async def copy_trade_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    message = (
-        "Copy Trade Feature 📲\n\n"
-        "Copy other traders' successful trades with one click!\n\n"
-        "To get started, choose a trader to copy."
-    )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
-
-async def settings_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    message = (
-        "Settings ⚙️\n\n"
-        "Here you can adjust your bot settings.\n\n"
-        "Choose an option to customize your experience."
-    )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
-
-async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    message = (
-        "Need Help? 🤔\n\n"
-        "If you're facing issues or need assistance, feel free to ask here. "
-        "You can contact our support team or join our Telegram group for updates."
-    )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
+# Define similar functions for the other buttons (positions, limit_orders, referrals, etc.)
 
 # Function to start the bot using polling
 def run_bot():
@@ -170,25 +106,9 @@ def run_bot():
     # CallbackQuery Handlers
     application.add_handler(CallbackQueryHandler(buy_handler, pattern="^buy$"))
     application.add_handler(CallbackQueryHandler(sell_handler, pattern="^sell$"))
-    application.add_handler(CallbackQueryHandler(positions_handler, pattern="^positions$"))
-    application.add_handler(CallbackQueryHandler(limit_orders_handler, pattern="^limit_orders$"))
-    application.add_handler(CallbackQueryHandler(referrals_handler, pattern="^referrals$"))
-    application.add_handler(CallbackQueryHandler(withdraw_handler, pattern="^withdraw$"))
-    application.add_handler(CallbackQueryHandler(copy_trade_handler, pattern="^copy_trade$"))
-    application.add_handler(CallbackQueryHandler(settings_handler, pattern="^settings$"))
-    application.add_handler(CallbackQueryHandler(help_handler, pattern="^help$"))
+    # Add handlers for other buttons here...
 
     logger.info("Bot is running...")
-    
-    # Run the Flask web server in a separate thread and then start polling the bot
-    from threading import Thread
-    def run_flask():
-        app.run(port=5000)
-
-    thread = Thread(target=run_flask)
-    thread.start()
-    
-    # Start polling for the Telegram bot
     application.run_polling()
 
 if __name__ == "__main__":
