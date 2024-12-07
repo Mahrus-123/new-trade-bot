@@ -18,7 +18,7 @@ app = Flask(__name__)
 
 # Define the main menu keyboard
 def main_menu_keyboard():
-    return InlineKeyboardMarkup([  # Inline keyboard with options
+    return InlineKeyboardMarkup([
         [
             InlineKeyboardButton("Buy", callback_data="buy"),
             InlineKeyboardButton("Sell", callback_data="sell"),
@@ -76,128 +76,127 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     )
     await update.message.reply_text(welcome_message, reply_markup=main_menu_keyboard())
 
-# Individual functions for each menu button
+# Handlers for each menu button
 async def buy_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = (
-        "Buy $SLND- (Solend) 📈\n\n"
-        "Balance: -_- SOL - W1 ✏️\n\n"
-        "Price: $0.3594 - LIQ: $17.48K - MC: $35.94M\n\n"
-        "🔴 Insufficient balance for buy amount + gas."
+        "🔵 **Buy Tokens**\n\n"
+        "Trade any token instantly. Select the token you'd like to buy and enter the amount.\n\n"
+        "Your current balance: 0.00 SOL\n"
+        "Example: To buy $SLND, enter the amount and confirm your purchase.\n\n"
+        "💡 Pro Tip: Ensure your wallet is funded to cover the token cost and gas fees."
     )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
+    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard(), parse_mode="Markdown")
 
 async def sell_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = (
-        "Sell $SLND- (Solend) 📉\n\n"
-        "Balance: 2.419 SOL\n\n"
-        "Price: $0.3594 - LIQ: $17.48K - MC: $35.94M\n\n"
-        "Ready to sell? Please confirm the amount."
+        "🔴 **Sell Tokens**\n\n"
+        "Select the token you'd like to sell and enter the amount.\n\n"
+        "Your current balance for $SLND: 2.419 SOL\n"
+        "Example: To sell $SLND, enter the amount and confirm your sale.\n\n"
+        "💡 Pro Tip: Keep an eye on market prices to sell at the best rate!"
     )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
+    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard(), parse_mode="Markdown")
 
 async def positions_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = (
-        "Your open positions:\n\n"
-        "1. $SLND - 2.0 SOL\n"
-        "2. $BTC - 1.5 SOL\n\n"
-        "Want to close a position? Select an option below."
+        "📊 **Open Positions**\n\n"
+        "Here are your current trading positions:\n"
+        "1. **$SLND** - 2.0 SOL\n"
+        "2. **$BTC** - 1.5 SOL\n\n"
+        "💡 Pro Tip: Monitor your positions regularly to maximize profits or minimize risks."
     )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
+    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard(), parse_mode="Markdown")
 
 async def limit_orders_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = (
-        "Your limit orders:\n\n"
-        "1. Buy $SLND at $0.35 - 1 SOL\n"
-        "2. Sell $SLND at $0.40 - 2 SOL\n\n"
-        "Would you like to modify or cancel an order?"
+        "📜 **Limit Orders**\n\n"
+        "Your current limit orders:\n"
+        "1. **Buy $SLND** at $0.35 - 1 SOL\n"
+        "2. **Sell $SLND** at $0.40 - 2 SOL\n\n"
+        "💡 Pro Tip: Limit orders let you trade at specific prices. Modify or cancel them as needed."
     )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
+    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard(), parse_mode="Markdown")
 
 async def referrals_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = (
-        "Referral program:\n\n"
-        "Invite a friend and get 10% of their trading fees.\n\n"
-        "Use your referral link: https://example.com/referral\n\n"
-        "Share it now!"
+        "🤝 **Referral Program**\n\n"
+        "Invite friends to Trojan and earn rewards!\n\n"
+        "🔗 Your Referral Link: https://example.com/referral\n\n"
+        "💡 Pro Tip: Earn 10% of trading fees from your referred users. Share your link now!"
     )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
+    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard(), parse_mode="Markdown")
 
 async def withdraw_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = (
-        "Withdraw your funds to your wallet.\n\n"
-        "Amount: 2.0 SOL\n\n"
-        "Please confirm your withdrawal request."
+        "💸 **Withdraw Funds**\n\n"
+        "Withdraw your SOL balance directly to your personal wallet.\n\n"
+        "Current Balance: 2.0 SOL\n\n"
+        "💡 Pro Tip: Ensure you've entered the correct wallet address before confirming."
     )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
+    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard(), parse_mode="Markdown")
 
 async def copy_trade_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = (
-        "Copy Trade allows you to copy the trades of top traders.\n\n"
-        "To start, select a trader to copy.\n\n"
-        "Top traders: @Trader1, @Trader2, @Trader3"
+        "📈 **Copy Trade**\n\n"
+        "Follow top traders and copy their trades to maximize your profits.\n\n"
+        "Top Traders:\n"
+        "1. **@Trader1** - ROI: 25%\n"
+        "2. **@Trader2** - ROI: 18%\n"
+        "3. **@Trader3** - ROI: 30%\n\n"
+        "💡 Pro Tip: Research traders' histories before copying their trades."
     )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
+    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard(), parse_mode="Markdown")
 
 async def settings_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = (
-        "Settings:\n\n"
-        "1. Change Language\n"
-        "2. Enable Notifications\n"
-        "3. Account Settings\n\n"
-        "Select an option to modify your settings."
+        "⚙️ **Settings**\n\n"
+        "Customize your experience:\n"
+        "1. **Change Language**: Select your preferred language.\n"
+        "2. **Enable Notifications**: Stay updated with trading alerts.\n"
+        "3. **Account Settings**: Update your account details.\n\n"
+        "💡 Pro Tip: Review your settings regularly to ensure everything is up-to-date."
     )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
+    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard(), parse_mode="Markdown")
 
 async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = (
-        "Help:\n\n"
-        "If you need help with any part of the bot, feel free to reach out!\n"
-        "Here are some frequently asked questions:\n\n"
-        "1. How to deposit funds?\n"
-        "2. How to start trading?\n"
-        "3. How to withdraw SOL?"
+        "❓ **Help Center**\n\n"
+        "Need assistance? Here are some common FAQs:\n"
+        "1. **How to deposit funds?**\n"
+        "2. **How to start trading?**\n"
+        "3. **How to withdraw SOL?**\n\n"
+        "💬 Contact us: support@example.com\n\n"
+        "💡 Pro Tip: Join our Telegram group @trojan for community support and updates!"
     )
-    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard())
+    await update.callback_query.edit_message_text(message, reply_markup=main_menu_keyboard(), parse_mode="Markdown")
 
 # Flask route to handle the webhook
 @app.route(f'/{os.getenv("TELEGRAM_BOT_TOKEN")}', methods=['POST'])
 def webhook():
     try:
         json_str = request.get_data().decode("UTF-8")
-        logger.info(f"Received JSON data: {json_str}")  # Log the raw JSON data
-
-        # Parse JSON string into a dictionary
-        data = json.loads(json_str)  # Convert string to dictionary
-        
-        # Now pass the data to Update.de_json
+        logger.info(f"Received JSON data: {json_str}")
+        data = json.loads(json_str)
         update = Update.de_json(data, Bot(token=os.getenv("TELEGRAM_BOT_TOKEN")))
-        
         application = Application.builder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
         application.update_queue.put(update)
-        
         return 'OK'
     except Exception as e:
         logger.error(f"Error processing webhook: {e}")
         return 'Error', 500
 
-# Set the webhook for Telegram bot
-def set_webhook():
-    bot_token = os.getenv('TELEGRAM_BOT_TOKEN')  # Get the bot token from environment variables
-    if not bot_token:
-        logger.error("Bot token is missing. Please set it in the environment variables.")
-        return
-    
-    webhook_url = f"https://{os.getenv('RENDER_APP_URL')}/{bot_token}"  # Use the render URL from environment variables
-
-    url = f"https://api.telegram.org/bot{bot_token}/setWebhook?url={webhook_url}"
-    response = requests.get(url)
-    
-    if response.status_code == 200:
-        logger.info("Webhook successfully set.")
-    else:
-        logger.error(f"Failed to set webhook: {response.text}")
-
-# Run the Flask app
+# Add the handlers to the application
 if __name__ == "__main__":
-    set_webhook()  # Set the webhook when starting the server
-    app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 4000)))
+    application = Application.builder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CallbackQueryHandler(buy_handler, pattern="^buy$"))
+    application.add_handler(CallbackQueryHandler(sell_handler, pattern="^sell$"))
+    application.add_handler(CallbackQueryHandler(positions_handler, pattern="^positions$"))
+    application.add_handler(CallbackQueryHandler(limit_orders_handler, pattern="^limit_orders$"))
+    application.add_handler(CallbackQueryHandler(referrals_handler, pattern="^referrals$"))
+    application.add_handler(CallbackQueryHandler(withdraw_handler, pattern="^withdraw$"))
+    application.add_handler(CallbackQueryHandler(copy_trade_handler, pattern="^copy_trade$"))
+    application.add_handler(CallbackQueryHandler(settings_handler, pattern="^settings$"))
+    application.add_handler(CallbackQueryHandler(help_handler, pattern="^help$"))
+    application.run_polling(stop_signals=None)
+    app.run(port=5000)
