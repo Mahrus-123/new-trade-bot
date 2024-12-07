@@ -187,7 +187,7 @@ def set_webhook():
         logger.error("Bot token is missing. Please set it in the environment variables.")
         return
     
-    webhook_url = f"https://{os.getenv('https://new-trade-bot-63.onrender.com')}/{bot_token}"  # Use the render URL from environment variables
+    webhook_url = f"https://{os.getenv('https://new-trade-bot-64.onrender.com')}/{bot_token}"  # Use the render URL from environment variables
 
     url = f"https://api.telegram.org/bot{bot_token}/setWebhook?url={webhook_url}"
     response = requests.get(url)
