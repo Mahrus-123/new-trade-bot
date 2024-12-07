@@ -168,15 +168,20 @@ def webhook():
     return 'OK'
 
 # Set the webhook for Telegram bot
+# Set the webhook for Telegram bot
 def set_webhook():
     bot_token = os.getenv('TELEGRAM_BOT_TOKEN')  # Get the bot token from environment variables
     if not bot_token:
         logger.error("Bot token is missing. Please set it in the environment variables.")
         return
     
-    webhook_url = f"https://{os.getenv('RENDER_URL')}/{bot_token}"  # Construct the webhook URL
+    # Replace this with your actual Render app URL and bot token
+    render_app_url = "https://new-trade-bot-62.onrender.com"  # Your Render app URL
+    webhook_url = f"{render_app_url}/{bot_token}"  # Construct the full webhook URL
 
+    # Call the Telegram API to set the webhook
     url = f"https://api.telegram.org/bot{bot_token}/setWebhook?url={webhook_url}"
+    
     response = requests.get(url)
     
     if response.status_code == 200:
